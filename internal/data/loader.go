@@ -7,6 +7,7 @@ import (
 	"reddit-tui/internal/models"
 )
 
+//go:embed sample_posts.json
 var sampleData embed.FS
 
 func LoadSamplePosts() ([]models.Post, error) {

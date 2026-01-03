@@ -72,29 +72,40 @@ func (m Model) View() string {
 	paneHeight := m.Height - controlPaneHeight
 
 	postsPaneHeading := lipgloss.NewStyle().Foreground(lipgloss.Color("205")).Bold(true).MarginLeft(2)
-	navPaneHeading := lipgloss.NewStyle().Foreground(lipgloss.Color("205")).Bold(true).MarginLeft(2)
+	navPaneHeading := lipgloss.NewStyle().Foreground(lipgloss.Color("205")).Bold(true)
 	previewPaneHeading := lipgloss.NewStyle().Foreground(lipgloss.Color("205")).Bold(true).MarginLeft(2)
 	cursorStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("205")).Bold(true)
 	postTitleStyle := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("86"))
 	subredditStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("33"))
 	metaStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("241"))
+	previewTitleStyle := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("86")).MarginLeft(2)
+	previewSubredditStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("33")).MarginLeft(2)
+	previewMetaStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("241")).MarginLeft(2)
+	previewTextStyle := lipgloss.NewStyle().MarginLeft(2)
 
 	sidebarItemStyle := lipgloss.NewStyle().
 		Foreground(lipgloss.Color("252")).
-		PaddingLeft(1)
+		BorderStyle(lipgloss.RoundedBorder()).
+		BorderForeground(lipgloss.Color("63")).
+		PaddingLeft(1).
+		PaddingRight(1).
+		Width(sidebarWidth - 4)
 	sidebarItemActiveStyle := lipgloss.NewStyle().
 		Foreground(lipgloss.Color("205")).
 		Bold(true).
-		PaddingLeft(1)
-	sidebarContent := navPaneHeading.Render("NAVIGATION") + "\n\n"
+		BorderStyle(lipgloss.RoundedBorder()).
+		BorderForeground(lipgloss.Color("205")).
+		PaddingLeft(1).
+		PaddingRight(1).
+		Width(sidebarWidth - 4)
+
+	sidebarContent := navPaneHeading.Render("ASCII REDDIT LOGO") + "\n\n"
 	for i, item := range m.SidebarItems {
-		cursor := "  "
 		style := sidebarItemStyle
 		if m.SidebarCursor == i {
-			cursor = cursorStyle.Render("> ")
 			style = sidebarItemActiveStyle
 		}
-		sidebarContent += cursor + style.Render(item) + "\n"
+		sidebarContent += style.Render(item) + "\n"
 	}
 
 	postsContent := postsPaneHeading.Render("POSTS") + "\n\n"
@@ -116,24 +127,24 @@ func (m Model) View() string {
 		selectedPost := m.Posts[m.PostsCursor]
 		previewLines = append(previewLines, previewPaneHeading.Render("PREVIEW"))
 		previewLines = append(previewLines, "")
-		previewLines = append(previewLines, postTitleStyle.Render(selectedPost.Title))
+		previewLines = append(previewLines, previewTitleStyle.Render(selectedPost.Title))
 		previewLines = append(previewLines, "")
-		previewLines = append(previewLines, subredditStyle.Render(selectedPost.Subreddit)+" by u/"+selectedPost.Author)
-		previewLines = append(previewLines, metaStyle.Render(fmt.Sprintf("%d upvotes | %d comments", selectedPost.Upvotes, selectedPost.Comments)))
+		previewLines = append(previewLines, previewSubredditStyle.Render(selectedPost.Subreddit+" by u/"+selectedPost.Author))
+		previewLines = append(previewLines, previewMetaStyle.Render(fmt.Sprintf("%d upvotes | %d comments", selectedPost.Upvotes, selectedPost.Comments)))
 		previewLines = append(previewLines, "")
-		previewLines = append(previewLines, strings.Repeat("-", 20))
+		previewLines = append(previewLines, previewTextStyle.Render(strings.Repeat("-", 20)))
 		previewLines = append(previewLines, "")
-		previewLines = append(previewLines, "Lorem ipsum dolor sit amet,")
-		previewLines = append(previewLines, "consectetur adipiscing elit.")
+		previewLines = append(previewLines, previewTextStyle.Render("Lorem ipsum dolor sit amet,"))
+		previewLines = append(previewLines, previewTextStyle.Render("consectetur adipiscing elit."))
 		previewLines = append(previewLines, "")
-		previewLines = append(previewLines, "Sed do eiusmod tempor incididunt")
-		previewLines = append(previewLines, "ut labore et dolore magna aliqua.")
+		previewLines = append(previewLines, previewTextStyle.Render("Sed do eiusmod tempor incididunt"))
+		previewLines = append(previewLines, previewTextStyle.Render("ut labore et dolore magna aliqua."))
 		previewLines = append(previewLines, "")
-		previewLines = append(previewLines, "Ut enim ad minim veniam, quis")
-		previewLines = append(previewLines, "nostrud exercitation ullamco.")
+		previewLines = append(previewLines, previewTextStyle.Render("Ut enim ad minim veniam, quis"))
+		previewLines = append(previewLines, previewTextStyle.Render("nostrud exercitation ullamco."))
 		previewLines = append(previewLines, "")
-		previewLines = append(previewLines, "Duis aute irure dolor in")
-		previewLines = append(previewLines, "reprehenderit in voluptate velit.")
+		previewLines = append(previewLines, previewTextStyle.Render("Duis aute irure dolor in"))
+		previewLines = append(previewLines, previewTextStyle.Render("reprehenderit in voluptate velit."))
 	} else {
 		previewLines = []string{"PREVIEW", "", "Select a post to view"}
 	}
