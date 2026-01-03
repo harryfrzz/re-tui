@@ -72,7 +72,6 @@ func (m Model) View() string {
 	paneHeight := m.Height - controlPaneHeight
 
 	postsPaneHeading := lipgloss.NewStyle().Foreground(lipgloss.Color("205")).Bold(true).MarginLeft(2)
-	navPaneHeading := lipgloss.NewStyle().Foreground(lipgloss.Color("205")).Bold(true)
 	previewPaneHeading := lipgloss.NewStyle().Foreground(lipgloss.Color("205")).Bold(true).MarginLeft(2)
 	cursorStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("205")).Bold(true)
 	postTitleStyle := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("86"))
@@ -99,7 +98,11 @@ func (m Model) View() string {
 		PaddingRight(1).
 		Width(sidebarWidth - 4)
 
-	sidebarContent := navPaneHeading.Render("ASCII REDDIT LOGO") + "\n\n"
+	logoStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("208")).Bold(true)
+	sidebarContent := logoStyle.Render(" ┌─┐┌─┐┌┬┐┌┬┐┬┌┬┐") + "\n"
+	sidebarContent += logoStyle.Render(" ├┬┘├┤  ││ ││││|│ ") + "\n"
+	sidebarContent += logoStyle.Render(" ┴└─└─┘─┴┘─┴┘┴ ┴ ") + "\n"
+	sidebarContent += logoStyle.Render(" T U I       ") + "\n\n"
 	for i, item := range m.SidebarItems {
 		style := sidebarItemStyle
 		if m.SidebarCursor == i {
