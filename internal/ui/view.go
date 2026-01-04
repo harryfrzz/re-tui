@@ -128,17 +128,40 @@ func (m Model) View() string {
 		}
 		postsContent += cursor + titleStyle.Render(post.Title) + "\n"
 		postsContent += "   " + subredditStyle.Render(post.Subreddit) + " by u/" + post.Author + "\n"
-		postsContent += "   " + metaStyle.Render(fmt.Sprintf("%d upvotes | %d comments", post.Upvotes, post.Comments)) + "\n\n"
+		postsContent += "   " + metaStyle.Render(fmt.Sprintf("%d upvotes | %d comments", post.GetDisplayUpvotes(), post.Comments)) + "\n\n"
 	}
 
 	var previewLines []string
 	if m.PostsCursor >= 0 && m.PostsCursor < len(m.Posts) {
 		selectedPost := m.Posts[m.PostsCursor]
+
+		// Vote indicators
+		upvoteStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("241")).MarginLeft(2)
+		downvoteStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("241")).MarginLeft(2)
+		upvoteIcon := "▲"
+		downvoteIcon := "▼"
+
+		// Highlight active vote
+		if selectedPost.UserVote == 1 { // VoteUp
+			upvoteStyle = upvoteStyle.Foreground(lipgloss.Color("208")).Bold(true)
+		} else if selectedPost.UserVote == 2 { // VoteDown
+			downvoteStyle = downvoteStyle.Foreground(lipgloss.Color("33")).Bold(true)
+		}
+
+		previewLines = append(previewLines, previewPaneHeading.Render("PREVIEW"))
 		previewLines = append(previewLines, "")
 		previewLines = append(previewLines, previewTitleStyle.Render(selectedPost.Title))
 		previewLines = append(previewLines, "")
 		previewLines = append(previewLines, previewSubredditStyle.Render(selectedPost.Subreddit+" by u/"+selectedPost.Author))
-		previewLines = append(previewLines, previewMetaStyle.Render(fmt.Sprintf("%d upvotes | %d comments", selectedPost.Upvotes, selectedPost.Comments)))
+
+		// Vote section
+		voteCountStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("252")).Bold(true).MarginLeft(2)
+		voteLine := upvoteStyle.Render(upvoteIcon) + " " + voteCountStyle.Render(fmt.Sprintf("%d", selectedPost.GetDisplayUpvotes())) + " " + downvoteStyle.Render(downvoteIcon)
+		voteHintStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("241")).MarginLeft(4)
+		voteHint := voteHintStyle.Render("(u: upvote, d: downvote)")
+
+		previewLines = append(previewLines, voteLine+" "+voteHint)
+		previewLines = append(previewLines, previewMetaStyle.Render(fmt.Sprintf("%d comments", selectedPost.Comments)))
 		previewLines = append(previewLines, "")
 		previewLines = append(previewLines, previewTextStyle.Render(strings.Repeat("-", 20)))
 		previewLines = append(previewLines, "")
@@ -172,9 +195,8 @@ func (m Model) View() string {
 
 	mainContent := lipgloss.JoinHorizontal(lipgloss.Top, sidebar, posts, preview)
 
-	controlTextStyle := metaStyle.Width(m.Width - 4)
-	controlText := controlTextStyle.Render("Tab: switch panes | ↑↓/j/k: navigate/scroll | q: quit")
-	controlPane := renderPane(controlText, m.Width, controlPaneHeight, "", false)
+	controlText := metaStyle.Render("Tab: switch panes | ↑↓/j/k: navigate/scroll | u: upvote | d: downvote | q: quit")
+	controlPane := renderPane(controlText, m.Width, controlPaneHeight, "63", false)
 
 	return lipgloss.JoinVertical(lipgloss.Left, mainContent, controlPane)
 }

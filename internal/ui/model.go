@@ -70,6 +70,16 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case "preview":
 				m.ActivePane = "sidebar"
 			}
+		case "u":
+			// Upvote the current post (only in preview pane)
+			if m.ActivePane == "preview" && m.PostsCursor >= 0 && m.PostsCursor < len(m.Posts) {
+				m.Posts[m.PostsCursor].ToggleUpvote()
+			}
+		case "d":
+			// Downvote the current post (only in preview pane)
+			if m.ActivePane == "preview" && m.PostsCursor >= 0 && m.PostsCursor < len(m.Posts) {
+				m.Posts[m.PostsCursor].ToggleDownvote()
+			}
 		case "up", "k":
 			if m.ActivePane == "sidebar" {
 				if m.SidebarCursor > 0 {
