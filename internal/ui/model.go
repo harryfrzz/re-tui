@@ -88,8 +88,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			} else if m.ActivePane == "posts" {
 				if m.PostsCursor > 0 {
 					m.PostsCursor--
-					m.PreviewScroll = 0 // Reset preview scroll when changing posts
-					// Keep cursor in view
+					m.PreviewScroll = 0
 					if m.PostsCursor < m.PostsScroll {
 						m.PostsScroll = m.PostsCursor
 					}

@@ -76,7 +76,6 @@ func (m Model) View() string {
 
 	postsPaneHeading := lipgloss.NewStyle().Foreground(lipgloss.Color("#ff4500")).Bold(true).MarginLeft(2)
 	// previewPaneHeading := lipgloss.NewStyle().Foreground(lipgloss.Color("#ff4500")).Bold(true).MarginLeft(2)
-	cursorStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#ff5700")).Bold(true)
 	postTitleStyle := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#ffb090"))
 	postTitleSelectedStyle := lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#ff5700"))
 	subredditStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("33"))
@@ -102,6 +101,19 @@ func (m Model) View() string {
 		PaddingRight(1).
 		Width(sidebarWidth - 4)
 
+	postItemStyle := lipgloss.NewStyle().
+		BorderStyle(lipgloss.RoundedBorder()).
+		BorderForeground(lipgloss.Color("#ffb090")).
+		PaddingLeft(1).
+		PaddingRight(1).
+		Width(postsWidth - 6)
+	postItemActiveStyle := lipgloss.NewStyle().
+		BorderStyle(lipgloss.RoundedBorder()).
+		BorderForeground(lipgloss.Color("#ff5700")).
+		PaddingLeft(1).
+		PaddingRight(1).
+		Width(postsWidth - 6)
+
 	logoStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#ff4500")).Bold(true)
 	sidebarContent := logoStyle.Render(" ┌─┐┌─┐┌┬┐┌┬┐┬┌┬┐") + "\n"
 	sidebarContent += logoStyle.Render(" ├┬┘├┤  ││ ││││││") + "\n"
@@ -120,15 +132,18 @@ func (m Model) View() string {
 		if i < m.PostsScroll {
 			continue
 		}
-		cursor := "  "
 		titleStyle := postTitleStyle
+		itemStyle := postItemStyle
 		if m.PostsCursor == i {
-			cursor = cursorStyle.Render("> ")
 			titleStyle = postTitleSelectedStyle
+			itemStyle = postItemActiveStyle
 		}
-		postsContent += cursor + titleStyle.Render(post.Title) + "\n"
-		postsContent += "   " + subredditStyle.Render(post.Subreddit) + " by u/" + post.Author + "\n"
-		postsContent += "   " + metaStyle.Render(fmt.Sprintf("%d upvotes | %d comments", post.GetDisplayUpvotes(), post.Comments)) + "\n\n"
+
+		postItemContent := titleStyle.Render(post.Title) + "\n"
+		postItemContent += subredditStyle.Render(post.Subreddit) + " by u/" + post.Author + "\n"
+		postItemContent += metaStyle.Render(fmt.Sprintf("%d upvotes | %d comments", post.GetDisplayUpvotes(), post.Comments))
+
+		postsContent += itemStyle.Render(postItemContent) + "\n"
 	}
 
 	var previewLines []string
