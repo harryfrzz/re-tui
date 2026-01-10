@@ -27,7 +27,7 @@ type Model struct {
 	SettingsCursor int
 	APIKey         string
 	ClientSecret   string
-	EditingField   int // 0 = none, 1 = API Key, 2 = Client Secret
+	EditingField   int
 }
 
 func InitialModel() Model {
@@ -41,7 +41,6 @@ func InitialModel() Model {
 			icons.Home + " Home",
 			icons.Explore + " Explore",
 			icons.Settings + " Settings",
-			icons.Login + " Login/Auth",
 		},
 		Posts:          posts,
 		AllPosts:       posts,
@@ -230,7 +229,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					if m.PostsCursor < len(postsList)-1 {
 						m.PostsCursor++
 						m.PreviewScroll = 0
-						visiblePosts := (m.Height - 3 - 4) / 4
+						// Each post takes ~5 lines (3 content lines + 2 border lines)
+						// paneHeight = m.Height - 3 (control pane), then subtract 4 for heading
+						visiblePosts := (m.Height - 3 - 4) / 5
 						if visiblePosts < 1 {
 							visiblePosts = 1
 						}
@@ -243,7 +244,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					if m.PostsCursor < len(postsList)-1 {
 						m.PostsCursor++
 						m.PreviewScroll = 0
-						visiblePosts := (m.Height - 3 - 4) / 4
+						// Each post takes ~5 lines (3 content lines + 2 border lines)
+						// Account for search bar taking extra space (~4 lines)
+						visiblePosts := (m.Height - 3 - 8) / 5
 						if visiblePosts < 1 {
 							visiblePosts = 1
 						}
@@ -251,7 +254,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 							m.PostsScroll = m.PostsCursor - visiblePosts + 1
 						}
 					}
-				} 
+				}
 			} else if m.ActivePane == "preview" {
 				m.PreviewScroll++
 			}

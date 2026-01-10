@@ -26,31 +26,14 @@ func renderPane(content string, width, height int, borderColor string, active bo
 	for i := 0; i < innerHeight; i++ {
 		if i < len(lines) {
 			line := lines[i]
-
-			// --- FIX STARTS HERE ---
-			// Check if this line is an Image Protocol sequence (Kitty/Ghostty or iTerm2)
-			// These sequences should NOT be truncated or padded with spaces,
-			// otherwise the terminal cannot render the base64 data.
-			isImage := strings.Contains(line, "\033_G") || strings.Contains(line, "\033]1337")
-
-			if isImage {
-				// Pass the image data through raw
-				result[i] = line
-			} else {
-				// Standard text processing (Truncate and Pad)
-				w := lipgloss.Width(line)
-				if w > innerWidth {
-					// Handle truncation safely
-					runes := []rune(line)
-					if len(runes) > innerWidth {
-						line = string(runes[:innerWidth])
-					}
+			w := lipgloss.Width(line)
+			if w > innerWidth {
+				runes := []rune(line)
+				if len(runes) > innerWidth {
+					line = string(runes[:innerWidth])
 				}
-				// Pad with spaces to fill the pane width
-				result[i] = line + strings.Repeat(" ", max(0, innerWidth-lipgloss.Width(line)))
 			}
-			// --- FIX ENDS HERE ---
-
+			result[i] = line + strings.Repeat(" ", max(0, innerWidth-lipgloss.Width(line)))
 		} else {
 			result[i] = strings.Repeat(" ", innerWidth)
 		}
@@ -240,9 +223,18 @@ func (m Model) View() string {
 			postsContent += noResultsStyle.Render("No results found") + "\n"
 		} else {
 			// Show search results
+			// Calculate how many posts can fit (each post takes ~5 lines with border)
+			// Account for extra space used by search bar (~4 lines)
+			visiblePosts := (paneHeight - 8) / 5
+			if visiblePosts < 1 {
+				visiblePosts = 1
+			}
 			for i, post := range m.SearchResults {
 				if i < m.PostsScroll {
 					continue
+				}
+				if i >= m.PostsScroll+visiblePosts {
+					break
 				}
 				titleStyle := postTitleStyle
 				itemStyle := postItemStyle
@@ -260,9 +252,17 @@ func (m Model) View() string {
 		}
 	} else {
 		postsContent = postsPaneHeading.Render("POSTS") + "\n\n"
+		// Calculate how many posts can fit (each post takes ~4 lines with border)
+		visiblePosts := (paneHeight - 4) / 5 // Heading + spacing + post items
+		if visiblePosts < 1 {
+			visiblePosts = 1
+		}
 		for i, post := range m.Posts {
 			if i < m.PostsScroll {
 				continue
+			}
+			if i >= m.PostsScroll+visiblePosts {
+				break
 			}
 			titleStyle := postTitleStyle
 			itemStyle := postItemStyle
